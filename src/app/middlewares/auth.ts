@@ -3,12 +3,12 @@ import httpStatus from 'http-status';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import AppError from '../errors/AppError';
-import { catchAsync } from '../utils/catchAsync';
-import { USER_ROLE } from '../modules/User/user.constant';
-import { verifyToken } from '../utils/verifyJWT';
+import { user_role } from '../modules/User/user.constant';
 import { User } from '../modules/User/user.model';
+import { catchAsync } from '../utils/catchAsync';
+import { verifyToken } from '../utils/verifyJWT';
 
-const auth = (...requiredRoles: (keyof typeof USER_ROLE)[]) => {
+const auth = (...requiredRoles: (keyof typeof user_role)[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
 
@@ -34,7 +34,7 @@ const auth = (...requiredRoles: (keyof typeof USER_ROLE)[]) => {
 
     const status = user?.status;
 
-    if (status === 'BLOCKED') {
+    if (status === 'blocked') {
       throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked !');
     }
 

@@ -1,13 +1,13 @@
-import bcrypt from 'bcryptjs';
+import { default as bcrypt, default as bcryptjs } from 'bcryptjs';
 import httpStatus from 'http-status';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
-import { createToken } from '../../utils/verifyJWT';
-import { USER_ROLE } from '../User/user.constant';
+import { EmailHelper } from '../../utils/emailSender';
+import { createToken, verifyToken } from '../../utils/verifyJWT';
+import { user_role } from '../User/user.constant';
 import { User } from '../User/user.model';
 import { TLoginUser, TRegisterUser } from './auth.interface';
-
 const registerUser = async (payload: TRegisterUser) => {
   // checking if the user is exist
   const user = await User.isUserExistsByEmail(payload?.email);
@@ -16,40 +16,14 @@ const registerUser = async (payload: TRegisterUser) => {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is already exist!');
   }
 
-  payload.role = USER_ROLE.USER;
+  payload.role = user_role.user;
 
   //create new user
-  const newUser = await User.create(payload);
+  const result = await User.create(payload);
 
-  //create token and sent to the  client
-
-  const jwtPayload = {
-    _id: newUser._id,
-    name: newUser.name,
-    email: newUser.email,
-    mobileNumber: newUser.mobileNumber,
-    profilePhoto: newUser.profilePhoto,
-    role: newUser.role,
-    status: newUser.status,
-  };
-
-  const accessToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string
-  );
-
-  const refreshToken = createToken(
-    jwtPayload,
-    config.jwt_refresh_secret as string,
-    config.jwt_refresh_expires_in as string
-  );
-
-  return {
-    accessToken,
-    refreshToken,
-  };
+  return result;
 };
+
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist
   const user = await User.isUserExistsByEmail(payload?.email);
@@ -62,7 +36,7 @@ const loginUser = async (payload: TLoginUser) => {
 
   const userStatus = user?.status;
 
-  if (userStatus === 'BLOCKED') {
+  if (userStatus === 'blocked') {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
   }
 
@@ -74,31 +48,22 @@ const loginUser = async (payload: TLoginUser) => {
   //create token and sent to the  client
 
   const jwtPayload = {
-    _id: user._id,
+    user: user._id,
     name: user.name,
     email: user.email,
-    mobileNumber: user.mobileNumber,
-    profilePhoto: user.profilePhoto,
+    phone: user.phone,
+    avatar: user.avatar,
     role: user.role,
     status: user.status,
   };
 
-  const accessToken = createToken(
+  const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
 
-  const refreshToken = createToken(
-    jwtPayload,
-    config.jwt_refresh_secret as string,
-    config.jwt_refresh_expires_in as string
-  );
-
-  return {
-    accessToken,
-    refreshToken,
-  };
+  return token;
 };
 
 const changePassword = async (
@@ -116,7 +81,7 @@ const changePassword = async (
 
   const userStatus = user?.status;
 
-  if (userStatus === 'BLOCKED') {
+  if (userStatus === 'blocked') {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
   }
 
@@ -145,60 +110,84 @@ const changePassword = async (
   return null;
 };
 
-const refreshToken = async (token: string) => {
-  // checking if the given token is valid
-  const decoded = jwt.verify(
-    token,
-    config.jwt_refresh_secret as string
-  ) as JwtPayload;
-
-  const { email, iat } = decoded;
-
-  // checking if the user is exist
+const forgetPassword = async (email: string) => {
   const user = await User.isUserExistsByEmail(email);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
   }
 
-  // checking if the user is blocked
-  const userStatus = user?.status;
-
-  if (userStatus === 'BLOCKED') {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
+  // Checking if the user is blocked
+  if (user.status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'Your account is blocked');
   }
 
-  if (
-    user.passwordChangedAt &&
-    User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat as number)
-  ) {
-    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
-  }
+  const jwtPayload = { user: user._id, email: user.email, role: user.role };
 
-  const jwtPayload = {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    mobileNumber: user.mobileNumber,
-    profilePhoto: user.profilePhoto,
-    role: user.role,
-    status: user.status,
-  };
-
-  const accessToken = createToken(
+  const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
 
-  return {
-    accessToken,
-  };
+  const resetUILink = `${config.client_url}/auth/change-password?id=${user._id}&token=${token}`;
+
+  const htmlContent = await EmailHelper.createEmailContent(
+    {
+      reset_link: resetUILink,
+    },
+    'forgot-password'
+  );
+
+  const subject = `Reset Your Password`;
+
+  await EmailHelper.sendEmail(user.email, htmlContent, subject);
+};
+
+const resetPassword = async (
+  payload: { id: string; newPassword: string },
+  token: string
+) => {
+  const user = await User.findById(payload.id);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Your account is not found');
+  }
+
+  // Checking if the user is blocked
+  if (user.status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'Your account is blocked');
+  }
+
+  const decoded = await verifyToken(
+    token,
+    config.jwt_access_secret as string
+  ) as JwtPayload;
+
+  if (decoded.exp as number < Math.floor(Date.now() / 1000)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Your Password Reset link is Expired!')
+  }
+  
+  if (payload.id !== decoded.user) {
+    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
+  }
+
+  // Hash new password
+  const newHashedPassword = await bcryptjs.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds)
+  );
+
+  await User.findByIdAndUpdate(
+    user.id, 
+    { password: newHashedPassword, passwordChangeAt: new Date() },
+  );
 };
 
 export const AuthServices = {
   registerUser,
   loginUser,
   changePassword,
-  refreshToken,
+  forgetPassword,
+  resetPassword,
 };

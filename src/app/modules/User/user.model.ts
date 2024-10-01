@@ -2,7 +2,7 @@
 import bcryptjs from 'bcryptjs';
 import { Schema, model } from 'mongoose';
 import config from '../../config';
-import { USER_ROLE, USER_STATUS } from './user.constant';
+import { user_role, user_status } from './user.constant';
 import { IUserModel, TUser } from './user.interface';
 
 const userSchema = new Schema<TUser, IUserModel>(
@@ -13,7 +13,7 @@ const userSchema = new Schema<TUser, IUserModel>(
     },
     role: {
       type: String,
-      enum: Object.keys(USER_ROLE),
+      enum: Object.keys(user_role),
       required: true,
     },
     email: {
@@ -28,23 +28,30 @@ const userSchema = new Schema<TUser, IUserModel>(
     password: {
       type: String,
       required: true,
+      minlength: 6,
       select: 0,
     },
     status: {
       type: String,
-      enum: Object.keys(USER_STATUS),
-      default: USER_STATUS.ACTIVE,
+      enum: Object.keys(user_status),
+      default: user_status.active,
     },
     passwordChangedAt: {
       type: Date,
     },
-    mobileNumber: {
+    phone: {
       type: String,
-      required: true,
     },
-    profilePhoto: {
+    avatar: {
       type: String,
-      default: null
+      default: 'uploads/image/profile/avatar.png',
+    },
+    followers: [{ type: Schema.ObjectId, ref: 'User' }],
+    following: [{ type: Schema.ObjectId, ref: 'User' }],
+    posts: [{ type: Schema.ObjectId, ref: 'Post' }],
+    bio: {
+      type: String,
+      maxLength: 250,
     },
   },
   {

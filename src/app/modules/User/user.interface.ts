@@ -1,17 +1,21 @@
 /* eslint-disable no-unused-vars */
-import { Model } from 'mongoose';
-import { USER_ROLE, USER_STATUS } from './user.constant';
+import { Model, Schema } from 'mongoose';
+import { user_role, user_status } from './user.constant';
 
 export type TUser = {
   _id?: string;
   name: string;
-  role: keyof typeof USER_ROLE;
+  role: keyof typeof user_role;
   email: string;
   password: string;
-  status: keyof typeof USER_STATUS;
+  status: keyof typeof user_status;
   passwordChangedAt?: Date;
-  mobileNumber?: string;
-  profilePhoto?: string;
+  phone?: string;
+  avatar?: string;
+  followers: typeof Schema.ObjectId[]
+  following: typeof Schema.ObjectId[]
+  posts: typeof Schema.ObjectId[]
+  bio?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };

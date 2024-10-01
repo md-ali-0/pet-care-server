@@ -1,8 +1,8 @@
 import express from 'express';
-import { UserControllers } from './user.controller';
 import auth from '../../middlewares/auth';
-import { USER_ROLE } from './user.constant';
 import validateRequest from '../../middlewares/validateRequest';
+import { user_role } from './user.constant';
+import { UserControllers } from './user.controller';
 import { UserValidation } from './user.validation';
 
 const router = express.Router();
@@ -11,7 +11,7 @@ export const UserRoutes = router;
 
 router.post(
   '/create-user',
-  auth(USER_ROLE.ADMIN),
+  auth(user_role.admin),
   validateRequest(UserValidation.createUserValidationSchema),
   UserControllers.userRegister
 );

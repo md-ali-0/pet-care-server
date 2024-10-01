@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { USER_ROLE, USER_STATUS } from './user.constant';
+import { user_role, user_status } from './user.constant';
 
 const createUserValidationSchema = z.object({
   body: z.object({
     name: z.string({
       required_error: 'Name is required',
     }),
-    role: z.nativeEnum(USER_ROLE),
+    role: z.nativeEnum(user_role),
     email: z
       .string({
         required_error: 'Email is required',
@@ -17,7 +17,7 @@ const createUserValidationSchema = z.object({
     password: z.string({
       required_error: 'Password is required',
     }),
-    status: z.nativeEnum(USER_STATUS).default(USER_STATUS.ACTIVE),
+    status: z.nativeEnum(user_status).default(user_status.active),
     mobileNumber: z.string().optional(),
   }),
 });
@@ -25,10 +25,10 @@ const createUserValidationSchema = z.object({
 const updateUserValidationSchema = z.object({
   body: z.object({
     name: z.string().optional(),
-    role: z.nativeEnum(USER_ROLE).optional(),
+    role: z.nativeEnum(user_role).optional(),
     email: z.string().email().optional(),
     password: z.string().optional(),
-    status: z.nativeEnum(USER_STATUS).optional(),
+    status: z.nativeEnum(user_status).optional(),
     mobileNumber: z.string().optional(),
   }),
 });
