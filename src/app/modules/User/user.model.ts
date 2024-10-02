@@ -42,9 +42,16 @@ const userSchema = new Schema<TUser, IUserModel>(
     phone: {
       type: String,
     },
+    address: {
+      type: String,
+    },
     avatar: {
       type: String,
-      default: 'uploads/image/profile/avatar.png',
+      default: 'https://res.cloudinary.com/dy8ef1ngb/image/upload/v1727772191/ozwx2ubdwadyhymvrndc.png',
+    },
+    cover: {
+      type: String,
+      default: 'https://res.cloudinary.com/dy8ef1ngb/image/upload/v1727772191/umggkxsdtdao3y0m7nfw.jpg',
     },
     followers: [{ type: Schema.ObjectId, ref: 'User' }],
     following: [{ type: Schema.ObjectId, ref: 'User' }],

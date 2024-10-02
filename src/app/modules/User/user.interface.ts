@@ -11,7 +11,9 @@ export type TUser = {
   status: keyof typeof user_status;
   passwordChangedAt?: Date;
   phone?: string;
+  cover?: string;
   avatar?: string;
+  address?: string;
   followers: typeof Schema.ObjectId[]
   following: typeof Schema.ObjectId[]
   posts: typeof Schema.ObjectId[]
