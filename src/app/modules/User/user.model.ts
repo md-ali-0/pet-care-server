@@ -56,6 +56,13 @@ const userSchema = new Schema<TUser, IUserModel>(
     followers: [{ type: Schema.ObjectId, ref: 'User' }],
     following: [{ type: Schema.ObjectId, ref: 'User' }],
     posts: [{ type: Schema.ObjectId, ref: 'Post' }],
+    isPremium: {
+      type: Boolean,
+      default: false
+    },
+    premiumExpireDate: {
+      type: Date,
+    },
     bio: {
       type: String,
       maxLength: 250,

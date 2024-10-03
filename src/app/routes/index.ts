@@ -1,6 +1,7 @@
 import express from 'express';
 import { AuthRoutes } from '../modules/Auth/auth.route';
 import { ImageUploadRoutes } from '../modules/ImageUpload/imageUpload.routes';
+import { PostRoutes } from '../modules/Posts/posts.route';
 import { UserRoutes } from '../modules/User/user.route';
 
 const router = express.Router();
@@ -17,6 +18,10 @@ const moduleRoutes = [
   {
     path: '/image-upload',
     route: ImageUploadRoutes,
+  },
+  {
+    path: '/posts',
+    route: PostRoutes,
   },
 ];
 

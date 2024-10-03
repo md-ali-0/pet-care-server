@@ -17,6 +17,8 @@ export type TUser = {
   followers: typeof Schema.ObjectId[]
   following: typeof Schema.ObjectId[]
   posts: typeof Schema.ObjectId[]
+  isPremium: boolean;
+  premiumExpireDate: Date;
   bio?: string;
   createdAt?: Date;
   updatedAt?: Date;
