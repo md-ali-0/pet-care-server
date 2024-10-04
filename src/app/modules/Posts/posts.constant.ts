@@ -1,0 +1,1 @@
+export const searchablePostField = ['title' , 'category', 'isPremium']

@@ -2,7 +2,7 @@ import { Schema } from "mongoose";
 
 export interface IPost {
   _id: string;
-  authorId: typeof Schema.ObjectId;
+  author: typeof Schema.ObjectId;
   title: string;
   content: string;
   category: 'Tip' | 'Story';

@@ -16,9 +16,10 @@ const voteSchema = new Schema({
 })
 
 const postSchema = new Schema<IPost>({
-    authorId: {
+    author: {
         type: Schema.ObjectId,
-        required: true
+        required: true,
+        ref: 'User'
     },
     title: {
         type: String,

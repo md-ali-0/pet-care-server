@@ -15,7 +15,21 @@ const createPost = catchAsync(async (req, res) => {
     });
   });
 
+// Retrieve all posts
+
+const getAllPosts = catchAsync(async (req, res) => {
+  const result = await PostServices.getAllPosts(req.query);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Posts retrieved successfully',
+      data: result.data,
+      meta: result.meta
+  });
+});
 
 export const PostControllers = {
-    createPost
+    createPost,
+    getAllPosts
 }

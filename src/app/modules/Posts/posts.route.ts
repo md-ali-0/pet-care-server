@@ -8,6 +8,8 @@ import { PostControllers } from './posts.controller';
 
 const router = Router();
 
+router.get('/', PostControllers.getAllPosts)
+
 router.post(
   '/',
   upload.array('images', 10),
