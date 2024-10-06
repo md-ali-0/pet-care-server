@@ -13,6 +13,7 @@ export const updatePostSchema = z.object({
   body: z.object({
     title: z.string(),
     content: z.string(),
+    imageUrls: z.any(),
     category: z.union([z.literal('Tip'), z.literal('Story')]),
     isPremium: z.boolean().optional(),
   }),

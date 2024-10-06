@@ -34,7 +34,7 @@ const getAllPosts = catchAsync(async (req, res) => {
 const updatePost = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const result = await PostServices.updatePost(id, payload);
+  const result = await PostServices.updatePost(req.files as any[], id, payload);
 
   sendResponse(res, {
       statusCode: httpStatus.OK,

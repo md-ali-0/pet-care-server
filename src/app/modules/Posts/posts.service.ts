@@ -61,9 +61,24 @@ const getAllPosts = async (query: Record<string, unknown>) => {
 };
 
 const updatePost = async (
+  files: any[],
   id: string,
   payload: IPost
 ): Promise<IPost | null> => {
+  const imageUrls: string[] = payload?.imageUrls || [];
+
+  if (files && files.length > 0) {
+    for (const file of files) {
+      const imageName = `images_${Math.random().toString().split('.')[1]}`;
+      const path = file.path;
+
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      imageUrls.push(secure_url as string);
+    }
+  }
+
+  payload.imageUrls = imageUrls;
+
   const result = await Post.findByIdAndUpdate(id, payload, { new: true });
 
   return result;
@@ -84,5 +99,5 @@ export const PostServices = {
   getAllPosts,
   updatePost,
   deletePost,
-  getSinglePost
+  getSinglePost,
 };

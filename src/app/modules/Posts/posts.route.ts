@@ -27,6 +27,13 @@ router.post(
 router.put(
   '/:id',
   auth(user_role.admin, user_role.user),
+  upload.array('images', 10),
+  (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    next();
+  },
   validateRequest(postValidation.updatePostSchema),
   PostControllers.updatePost,
 );
