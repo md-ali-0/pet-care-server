@@ -12,6 +12,7 @@ router.get('/', PostControllers.getAllPosts)
 
 router.post(
   '/',
+  auth(user_role.admin, user_role.user),
   upload.array('images', 10),
   (req: Request, res: Response, next: NextFunction) => {
     if (req.body.data) {
@@ -19,9 +20,18 @@ router.post(
     }
     next();
   },
-  auth(user_role.admin, user_role.user),
   validateRequest(postValidation.createPostSchema),
   PostControllers.createPost
 );
+
+router.put(
+  '/:id',
+  auth(user_role.admin, user_role.user),
+  validateRequest(postValidation.updatePostSchema),
+  PostControllers.updatePost,
+);
+
+router.delete('/:id', auth(user_role.admin, user_role.user), PostControllers.deletePost);
+router.get('/:id', PostControllers.getSinglePost);
 
 export const PostRoutes = router;

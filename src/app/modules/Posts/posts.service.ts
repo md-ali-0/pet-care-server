@@ -60,7 +60,29 @@ const getAllPosts = async (query: Record<string, unknown>) => {
   };
 };
 
+const updatePost = async (
+  id: string,
+  payload: IPost
+): Promise<IPost | null> => {
+  const result = await Post.findByIdAndUpdate(id, payload, { new: true });
+
+  return result;
+};
+
+const deletePost = async (id: string): Promise<IPost | null> => {
+  const result = await Post.findByIdAndDelete(id);
+  return result;
+};
+
+const getSinglePost = async (id: string): Promise<IPost | null> => {
+  const result = await Post.findById(id);
+  return result;
+};
+
 export const PostServices = {
   createPost,
   getAllPosts,
+  updatePost,
+  deletePost,
+  getSinglePost
 };

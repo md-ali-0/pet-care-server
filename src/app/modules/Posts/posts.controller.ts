@@ -29,7 +29,51 @@ const getAllPosts = catchAsync(async (req, res) => {
   });
 });
 
+// Update an existing Post
+
+const updatePost = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const payload = req.body;
+  const result = await PostServices.updatePost(id, payload);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Post updated successfully',
+      data: result,
+  });
+});
+
+// delete an existing Post
+
+const deletePost = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await PostServices.deletePost(id);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Post deleted successfully',
+      data: result,
+  });
+});
+
+const getSinglePost = catchAsync(async (req, res) => {
+  const { id } =req.params
+  const result = await PostServices.getSinglePost(id);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Posts retrieved successfully',
+      data: result,
+  });
+});
+
 export const PostControllers = {
     createPost,
-    getAllPosts
+    getAllPosts,
+    updatePost,
+    deletePost,
+    getSinglePost
 }

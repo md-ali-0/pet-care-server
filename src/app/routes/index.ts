@@ -4,6 +4,7 @@ import { CommentRoutes } from '../modules/Comments/comment.route';
 import { ImageUploadRoutes } from '../modules/ImageUpload/imageUpload.routes';
 import { PostRoutes } from '../modules/Posts/posts.route';
 import { UserRoutes } from '../modules/User/user.route';
+import { VoteRoutes } from '../modules/Vote/vote.route';
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: '/comment',
     route: CommentRoutes,
+  },
+  {
+    path: '/vote',
+    route: VoteRoutes,
   },
 ];
 

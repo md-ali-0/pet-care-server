@@ -1,5 +1,5 @@
 import bcryptjs from 'bcryptjs';
-import { QueryBuilder } from '../../builder/QueryBuilder';
+import QueryBuilder from '../../builder/QueryBuilder';
 import config from '../../config';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { UserSearchableFields } from './user.constant';
