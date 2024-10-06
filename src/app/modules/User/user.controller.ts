@@ -62,10 +62,39 @@ const updateMe = catchAsync(async (req, res) => {
   });
 });
 
+const followUser = catchAsync(async (req, res) => {
+  const { user } = req.user;
+  const payload = req.body
+
+  const result = await UserServices.followUser(user, payload.followingId);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User profile updated successfully',
+      data: result,
+  });
+});
+
+const unfollowUser = catchAsync(async (req, res) => {
+  const { user } = req.user;
+  const payload = req.body
+  const result = await UserServices.unfollowUser(user, payload.followingId);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User profile updated successfully',
+      data: result,
+  });
+});
+
 export const UserControllers = {
   getSingleUser,
   userRegister,
   getAllUsers,
   getMe,
-  updateMe
+  updateMe,
+  followUser,
+  unfollowUser
 };

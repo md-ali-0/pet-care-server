@@ -1,4 +1,5 @@
 import bcryptjs from 'bcryptjs';
+import { Schema, Types } from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import config from '../../config';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
@@ -14,11 +15,12 @@ const createUser = async (payload: TUser) => {
 
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   const users = new QueryBuilder(User.find(), query)
+    .search(UserSearchableFields)
     .fields()
     .paginate()
     .sort()
     .filter()
-    .search(UserSearchableFields);
+    .limit()
 
   const result = await users.modelQuery;
 
@@ -35,7 +37,11 @@ const getMe = async (email: string): Promise<TUser | null> => {
   const user = await User.findOne({ email });
   return user;
 };
-const updateMe = async (email: string, files :any, payload: any): Promise<TUser | null> => {
+const updateMe = async (
+  email: string,
+  files: any,
+  payload: any
+): Promise<TUser | null> => {
   if (files.avatar) {
     const imageName = `avatar_${Math.random().toString().split('.')[1]}`;
     const path = files?.avatar[0]?.path;
@@ -43,7 +49,7 @@ const updateMe = async (email: string, files :any, payload: any): Promise<TUser 
     //send image to cloudinary
     const { secure_url } = await sendImageToCloudinary(imageName, path);
     payload.avatar = secure_url as string;
-}
+  }
   if (files.cover) {
     const imageName = `cover_${Math.random().toString().split('.')[1]}`;
     const path = files?.cover[0]?.path;
@@ -51,18 +57,44 @@ const updateMe = async (email: string, files :any, payload: any): Promise<TUser 
     //send image to cloudinary
     const { secure_url } = await sendImageToCloudinary(imageName, path);
     payload.cover = secure_url as string;
-}
+  }
 
   if (payload.password) {
     const password = await bcryptjs.hash(
       payload.password,
       Number(config.bcrypt_salt_rounds)
-    )
-    payload.password = password
+    );
+    payload.password = password;
   }
 
   const user = await User.findOneAndUpdate({ email }, payload);
   return user;
+};
+
+const followUser = async (followerId: string, followingId: string) => {
+  // Add followingId to follower's "following" list
+  const follower = await User.findById(followerId);
+  
+  if (!follower?.following.includes(followingId as unknown as typeof Schema.ObjectId)) {
+    await User?.updateOne({_id: new Types.ObjectId(followerId)},{ $push: {'following': followingId}})
+    await User?.updateOne({_id: new Types.ObjectId(followingId)},{ $push: {'followers': followerId}})
+
+  }
+
+  return true
+};
+
+const unfollowUser = async (followerId: string, followingId: string) => {
+  // Remove followingId from follower's "following" list
+  const follower = await User.findById(followerId);
+
+  if (follower?.following.includes(followingId as unknown as typeof Schema.ObjectId)) {
+    await User?.updateOne({_id: new Types.ObjectId(followerId)},{ $pull: {'following': followingId}})
+    await User?.updateOne({_id: new Types.ObjectId(followingId)},{ $pull: {'followers': followerId}})
+
+  }
+
+  return true
 };
 
 export const UserServices = {
@@ -70,5 +102,7 @@ export const UserServices = {
   getAllUsersFromDB,
   getSingleUserFromDB,
   getMe,
-  updateMe
+  updateMe,
+  followUser,
+  unfollowUser
 };
