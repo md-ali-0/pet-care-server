@@ -94,10 +94,16 @@ const getSinglePost = async (id: string): Promise<IPost | null> => {
   return result;
 };
 
+const getPostsByUser = async (id: string): Promise<IPost[] | null> => {
+  const result = await Post.find({author: id}).populate('author');
+  return result;
+};
+
 export const PostServices = {
   createPost,
   getAllPosts,
   updatePost,
   deletePost,
   getSinglePost,
+  getPostsByUser
 };

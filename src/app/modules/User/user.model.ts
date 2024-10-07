@@ -45,6 +45,9 @@ const userSchema = new Schema<TUser, IUserModel>(
     address: {
       type: String,
     },
+    birthdate: {
+      type: Date,
+    },
     avatar: {
       type: String,
       default: 'https://res.cloudinary.com/dy8ef1ngb/image/upload/v1727772191/ozwx2ubdwadyhymvrndc.png',

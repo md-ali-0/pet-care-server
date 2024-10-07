@@ -14,6 +14,7 @@ export type TUser = {
   cover?: string;
   avatar?: string;
   address?: string;
+  birthdate?: string;
   followers: typeof Schema.ObjectId[]
   following: typeof Schema.ObjectId[]
   posts: typeof Schema.ObjectId[]

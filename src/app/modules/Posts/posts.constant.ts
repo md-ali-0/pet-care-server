@@ -1,1 +1,1 @@
-export const searchablePostField = ['title' , 'category', 'isPremium']
+export const searchablePostField = ['title' , 'category']
