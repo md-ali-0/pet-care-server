@@ -11,7 +11,7 @@ import { verifyToken } from '../utils/verifyJWT';
 const auth = (...requiredRoles: (keyof typeof user_role)[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // const token = req?.headers?.authorization
-    const token = req?.cookies?.session
+    const token = req?.cookies?.accessToken
 
     // checking if the token is missing
     if (!token) {

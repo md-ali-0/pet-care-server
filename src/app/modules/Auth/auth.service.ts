@@ -55,15 +55,22 @@ const loginUser = async (payload: TLoginUser) => {
     avatar: user.avatar,
     role: user.role,
     status: user.status,
+    isPremium: user.isPremium
   };
 
-  const token = createToken(
+  const accessToken = await createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
 
-  return token;
+  const refreshToken = await createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
+
+  return {accessToken, refreshToken};
 };
 
 const changePassword = async (
@@ -184,10 +191,48 @@ const resetPassword = async (
   );
 };
 
+const getRefreshToken = async (token: string) => {
+  // verify token
+
+  const decoded = await verifyToken(
+      token,
+      config.jwt_refresh_secret as string,
+  );
+
+  const { user } = decoded as JwtPayload;
+
+  const authUser = await User.findById(user);
+
+  // checking if the user is exists
+  if (!authUser) {
+      throw new AppError(httpStatus.NOT_FOUND, 'The user is not found');
+  }
+
+  const jwtPayload = {
+    user: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    avatar: user.avatar,
+    role: user.role,
+    status: user.status,
+    isPremium: user.isPremium
+  };
+
+  const accessToken = await createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expires_in as string,
+  );
+
+  return accessToken
+};
+
 export const AuthServices = {
   registerUser,
   loginUser,
   changePassword,
   forgetPassword,
   resetPassword,
+  getRefreshToken
 };
