@@ -11,10 +11,23 @@ router.post(
     auth(user_role.admin, user_role.user),
     PaymentController.createPaymentIntent,
 );
+router.get(
+    '/',
+    auth(user_role.admin),
+    PaymentController.getAllPayments,
+);
+
 router.post(
     '/create-payment',
     auth(user_role.admin, user_role.user),
     PaymentController.createPayment,
 );
+
+router.delete(
+    '/:id',
+    auth(user_role.admin),
+    PaymentController.deletePayment,
+);
+
 
 export const PaymentRoutes = router;

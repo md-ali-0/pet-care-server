@@ -1,10 +1,29 @@
 import httpStatus from "http-status";
 import Stripe from "stripe";
+import QueryBuilder from "../../builder/QueryBuilder";
 import config from "../../config";
 import AppError from "../../errors/AppError";
 import { User } from "../User/user.model";
 import { IPayment } from "./payment.interface";
 import { Payment } from "./payment.model";
+
+const getAllPayments = async (query: Record<string, unknown>) => {
+    const PaymentQuery = new QueryBuilder(Payment.find().populate('user'), query)
+      .search(['user', 'currency', 'payment_method', 'transectionId'])
+      .fields()
+      .paginate()
+      .sort()
+      .filter()
+      .limit()
+  
+    const meta = await PaymentQuery.countTotal();
+    const data = await PaymentQuery.modelQuery;
+  
+    return {
+      meta,
+      data,
+  };
+  };
 
 const createPaymentIntent = async (payload: { amount: number; currency: string; }) => {
     const { amount, currency } = payload;
@@ -30,7 +49,14 @@ const createPayment = async(payload: IPayment) =>{
     return payment
 } 
 
+const deletePayment = async (id: string): Promise<IPayment | null> => {
+    const result = await Payment.findByIdAndDelete(id);
+    return result;
+  };
+
 export const PaymentService = {
     createPaymentIntent,
-    createPayment
+    createPayment,
+    getAllPayments,
+    deletePayment
 };

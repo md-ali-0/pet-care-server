@@ -15,6 +15,18 @@ const createPaymentIntent = catchAsync(async (req, res) => {
     });
 });
 
+const getAllPayments = catchAsync(async (req, res) => {
+    const result = await PaymentService.getAllPayments(req.query);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'All Payment Retrive successfully',
+        data: result.data,
+        meta: result.meta
+    });
+});
+
 const createPayment = catchAsync(async (req, res) => {
     const payload = req.body;
     const result = await PaymentService.createPayment(payload);
@@ -27,7 +39,21 @@ const createPayment = catchAsync(async (req, res) => {
     });
 });
 
+const deletePayment = catchAsync(async (req, res) => {
+    const {id} = req.params
+    const result = await PaymentService.deletePayment(id);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Payment created successfully',
+        data: result,
+    });
+});
+
 export const PaymentController = {
+    getAllPayments,
     createPaymentIntent,
-    createPayment
+    createPayment,
+    deletePayment
 };
