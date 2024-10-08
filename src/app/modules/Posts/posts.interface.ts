@@ -10,6 +10,7 @@ export interface IPost {
   isPremium: boolean;
   createdAt: Date;
   updatedAt: Date;
+  status: 'publish' | 'unpublish'
   voteCount: {
     upvotes: number;
     downvotes: number;

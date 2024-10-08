@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { Comment } from '../Comments/comment.model';
@@ -95,7 +96,28 @@ const getSinglePost = async (id: string): Promise<IPost | null> => {
 };
 
 const getPostsByUser = async (id: string): Promise<IPost[] | null> => {
-  const result = await Post.find({author: id}).populate('author');
+  const result = await Post.find({ author: id }).populate('author');
+  return result;
+};
+
+const changePostStatus = async (
+  id: string,
+  payload: any
+): Promise<IPost | null> => {
+  if (!payload?.data?.status) {
+    throw new Error("Status is required to update the post.");
+  }
+
+  const result = await Post.findOneAndUpdate(
+    { _id: new Types.ObjectId(id) },  // Filter
+    { $set: { status: payload.data.status } },  // Update operation
+    { new: true }  // Option to return the updated document
+  );
+
+  if (!result) {
+    throw new Error("Post not found or update failed.");
+  }
+
   return result;
 };
 
@@ -105,5 +127,6 @@ export const PostServices = {
   updatePost,
   deletePost,
   getSinglePost,
-  getPostsByUser
+  getPostsByUser,
+  changePostStatus,
 };

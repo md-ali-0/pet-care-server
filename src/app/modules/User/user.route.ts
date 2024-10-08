@@ -37,6 +37,17 @@ router.put(
   auth(user_role.admin, user_role.user),
   UserControllers.updateMe
 );
+router.patch(
+  '/:id',
+  auth(user_role.admin),
+  UserControllers.updateUser,
+);
 
 router.post('/follow', auth(user_role.admin, user_role.user),UserControllers.followUser)
 router.post('/unfollow', auth(user_role.admin, user_role.user),UserControllers.unfollowUser)
+
+router.delete(
+  '/:id',
+  auth(user_role.admin),
+  UserControllers.deleteUser,
+);

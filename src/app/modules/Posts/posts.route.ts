@@ -41,5 +41,6 @@ router.put(
 router.delete('/:id', auth(user_role.admin, user_role.user), PostControllers.deletePost);
 router.get('/:id', PostControllers.getSinglePost);
 router.post('/:id', PostControllers.getPostsByUser);
+router.patch('/:id', auth(user_role.admin), PostControllers.changePostStatus);
 
 export const PostRoutes = router;

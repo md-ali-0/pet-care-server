@@ -14,7 +14,7 @@ const createUser = async (payload: TUser) => {
 };
 
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
-  const users = new QueryBuilder(User.find(), query)
+  const UserQuery = new QueryBuilder(User.find(), query)
     .search(UserSearchableFields)
     .fields()
     .paginate()
@@ -22,9 +22,13 @@ const getAllUsersFromDB = async (query: Record<string, unknown>) => {
     .filter()
     .limit()
 
-  const result = await users.modelQuery;
+  const meta = await UserQuery.countTotal();
+  const data = await UserQuery.modelQuery;
 
-  return result;
+  return {
+    meta,
+    data,
+};
 };
 
 const getSingleUserFromDB = async (id: string) => {
@@ -97,6 +101,19 @@ const unfollowUser = async (followerId: string, followingId: string) => {
   return true
 };
 
+const updateUser = async (
+  id: string,
+  payload: Partial<TUser>,
+): Promise<TUser | null> => {
+  const user = await User.findByIdAndUpdate(id, payload, { new: true });
+  return user;
+};
+
+const deleteUser = async (id: string): Promise<TUser | null> => {
+  const result = await User.findByIdAndDelete(id);
+  return result;
+};
+
 export const UserServices = {
   createUser,
   getAllUsersFromDB,
@@ -104,5 +121,7 @@ export const UserServices = {
   getMe,
   updateMe,
   followUser,
-  unfollowUser
+  unfollowUser,
+  updateUser,
+  deleteUser
 };

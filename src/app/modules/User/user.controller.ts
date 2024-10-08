@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -15,13 +16,14 @@ const userRegister = catchAsync(async (req, res) => {
 });
 
 const getAllUsers = catchAsync(async (req, res) => {
-  const users = await UserServices.getAllUsersFromDB(req.query);
+  const result = await UserServices.getAllUsersFromDB(req.query);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Users Retrieved Successfully',
-    data: users,
+    data: result.data,
+    meta: result.meta,
   });
 });
 
@@ -89,6 +91,38 @@ const unfollowUser = catchAsync(async (req, res) => {
   });
 });
 
+const updateUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const payload = {...req.body};
+
+  if (req.body.password) {
+      const hashPassword =  await bcrypt.hash(req.body.password, 12)
+      payload.password = hashPassword
+  } else {
+      delete payload.password
+  }
+  const result = await UserServices.updateUser(id, payload);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Profile updated successfully',
+      data: result,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserServices.deleteUser(id);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User deleted successfully',
+      data: result,
+  });
+});
+
 export const UserControllers = {
   getSingleUser,
   userRegister,
@@ -96,5 +130,7 @@ export const UserControllers = {
   getMe,
   updateMe,
   followUser,
-  unfollowUser
+  unfollowUser,
+  updateUser,
+  deleteUser
 };

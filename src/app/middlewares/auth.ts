@@ -15,7 +15,7 @@ const auth = (...requiredRoles: (keyof typeof user_role)[]) => {
 
     // checking if the token is missing
     if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not logged In!');
     }
 
     const decoded = verifyToken(

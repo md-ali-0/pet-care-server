@@ -80,6 +80,17 @@ const getPostsByUser = catchAsync(async (req, res) => {
       data: result,
   });
 });
+const changePostStatus = catchAsync(async (req, res) => {
+  const { id } =req.params
+  const result = await PostServices.changePostStatus(id, req.body);
+
+  sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Posts retrieved successfully',
+      data: result,
+  });
+});
 
 export const PostControllers = {
     createPost,
@@ -87,5 +98,6 @@ export const PostControllers = {
     updatePost,
     deletePost,
     getSinglePost,
-    getPostsByUser
+    getPostsByUser,
+    changePostStatus
 }

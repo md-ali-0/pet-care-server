@@ -37,6 +37,12 @@ const postSchema = new Schema<IPost>({
     imageUrls: {
         type: [String],
     },
+    status: {
+        type: String,
+        enum: ['publish', "unpublish"],
+        required: true,
+        default: 'publish'
+    },
     isPremium: {
         type: Boolean,
         required: true,
